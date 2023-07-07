@@ -359,6 +359,7 @@
 -r:"Library/Bee/artifacts/1300b0aE.dag/UnityEngine.UI.ref.dll"
 "Assets/Scripts/Base/Pool.cs"
 "Assets/Scripts/ConstantVariables.cs"
+"Assets/Scripts/Managers/SwipeManager.cs"
 "Assets/Scripts/Managers/TileManager.cs"
 "Assets/Scripts/Tile/TileObj.cs"
 -langversion:9.0

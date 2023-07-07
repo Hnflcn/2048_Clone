@@ -13,8 +13,8 @@ namespace Managers
     public class TileManager : MonoBehaviour
     {
         public static int GridSize = 4;
-        private readonly Transform[,] _tilePos = new Transform[GridSize, GridSize];
-        private readonly TileObj[,] _tiles = new TileObj[GridSize, GridSize];
+        protected readonly Transform[,] TilePos = new Transform[GridSize, GridSize];
+        protected readonly TileObj[,] Tiles = new TileObj[GridSize, GridSize];
 
        private TileObj _tileScript;
 
@@ -36,7 +36,7 @@ namespace Managers
 
             foreach (Transform child in transform)
             {
-                _tilePos[x, y] = child;
+                TilePos[x, y] = child;
 
                 x ++;
                 if (x < GridSize) continue;
@@ -52,7 +52,7 @@ namespace Managers
             {
                 for (var j = 0; j < GridSize; j++)
                 {
-                    if (_tiles[i,j] == null)
+                    if (Tiles[i,j] == null)
                     {
                         availableSlots.Add(new Vector2Int(i,j));
                     }
@@ -76,7 +76,7 @@ namespace Managers
             _tileScript.SetValue(GetRandomValue());
             
 
-            _tiles[slot.x, slot.y] = _tileScript;
+            Tiles[slot.x, slot.y] = _tileScript;
 
             return true;
         }
@@ -93,8 +93,8 @@ namespace Managers
             {
                 for (var j = 0; j < GridSize; j++)
                 {
-                    if (_tiles[i,j] != null)
-                        _tiles[i, j].transform.position = _tilePos[i, j].position;
+                    if (Tiles[i,j] != null)
+                        Tiles[i, j].transform.position = TilePos[i, j].position;
                 }
             }
         }
