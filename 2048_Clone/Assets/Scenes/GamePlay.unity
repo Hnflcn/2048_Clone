@@ -360,6 +360,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e336c37a90878545869b65ca19d5d0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tileData: {fileID: 11400000, guid: b3dc69acf0988a94fa50239d821c9b24, type: 2}
 --- !u!1 &490902014
 GameObject:
   m_ObjectHideFlags: 0

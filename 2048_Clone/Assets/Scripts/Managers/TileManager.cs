@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Base;
+using Data_Scriptables;
 using DG.Tweening;
 using Lean.Touch;
 using Tile;
@@ -17,14 +19,19 @@ namespace Managers
         protected readonly Transform[,] TilePos = new Transform[GridSize, GridSize];
         protected readonly TileObj[,] Tiles = new TileObj[GridSize, GridSize];
 
-       private TileObj _tileScript;
+        private TileObj _tileScript;
+
+        private bool _isMoving;
+
+        [SerializeField] private TileData tileData;
+       
 
         private void Start()
         {
             GetTilePositions();
             CanSpawn();
             CanSpawn();
-            UpdateTilePosition();
+            UpdateTilePosition(true);
         }
 
         private void GetTilePositions()
@@ -88,92 +95,33 @@ namespace Managers
             return randomValue <= .8f ? 2 : 4;
         }
 
-        protected void UpdateTilePosition()
+        private void UpdateTilePosition(bool firstIns)
         {
-            for (var i = 0; i < GridSize; i++)
+            if (!firstIns)
             {
-                for (var j = 0; j < GridSize; j++)
-                {
-                    if (Tiles[i,j] != null)
-                        Tiles[i, j].transform.position = TilePos[i, j].position;
-                }
+                _isMoving = true;
+                StartCoroutine(WaitForTileMove());
             }
+            
+            for (var i = 0; i < GridSize; i++)
+                for (var j = 0; j < GridSize; j++)
+                    if (Tiles[i, j] != null)
+                        Tiles[i, j].SetPosition(TilePos[i, j].position, firstIns);
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        #region Variables
+
+        private IEnumerator WaitForTileMove()
+        {
+            yield return new WaitForSeconds(tileData.movingTime);
+            _isMoving = false;
+        }
+
+        private bool _tilesUpdt;
+        
+        #region SwipeManager
 
         private Vector2 _startPosition;
         private const float SwipeThreshold = 50f;
 
-        #endregion
-
-        #region LeanTouch Functions
 
         private void OnEnable()
         {
@@ -200,7 +148,8 @@ namespace Managers
             if (!(direction.magnitude >= SwipeThreshold)) return;
             direction.Normalize();
 
-            DefineFingerMoving(direction);
+            if(!_isMoving)
+                DefineFingerMoving(direction);
         }
 
         #endregion
@@ -210,6 +159,8 @@ namespace Managers
 
         private void DefineFingerMoving(Vector2 direction)
         {
+            _tilesUpdt = false;
+            
             if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
             {
                 if (direction.x > 0)
@@ -224,81 +175,82 @@ namespace Managers
                 else
                     MoveDown();
             }
-            UpdateTilePosition();
+            
+            if(_tilesUpdt)
+                UpdateTilePosition(false);
         }
         
         
-          private void MoveRight()
-          {
-              Debug.Log("sag");
+        private void MoveRight()
+        {
               for (var j = 0; j < GridSize; j++)
                   for (var i= GridSize - 1; i >= 0; i--)
                   {
-                      Debug.Log("sag1");
                       if (Tiles[i,j] == null) continue; 
                       
                       for (var k = GridSize - 1; k > i; k--)
                       {
-                          Debug.Log("sag2");
                           if (Tiles[k,j] != null) continue;
-                                  Tiles[k, j] = Tiles[i, j];
-                                  
-                          
-                          Debug.Log("sag3");
+
+                          _tilesUpdt = true;
+                          Tiles[k, j] = Tiles[i, j];
                           Tiles[i, j] = null;
                           break;
                       }
                   }
-          }
-          private void MoveLeft()
-          {
-              Debug.Log("sol");
-              for (var j = 0; j < GridSize; j++)
-                  for (var i=0; i<GridSize; i++)
-                  {
-                      if (Tiles[i,j] == null) continue;
-                              for (var k = 0; k < i; k++)
-                      {
-                          if (Tiles[k,j] != null) continue;
-                                  Tiles[k, j] = Tiles[i, j];
-                          Tiles[i, j] = null;
-                          break;
-                      }
-                  }
-          }
+        }
+        private void MoveLeft()
+        {
+            for (var j = 0; j < GridSize; j++)
+                for (var i=0; i<GridSize; i++)
+                {
+                    if (Tiles[i,j] == null) continue;
+                            for (var k = 0; k < i; k++)
+                    {
+                        if (Tiles[k,j] != null) continue;
+                        
+                        _tilesUpdt = true;
+                        Tiles[k, j] = Tiles[i, j];
+                        Tiles[i, j] = null;
+                        break;
+                    }
+                }
+        }
         private void MoveDown()
-          {
-              Debug.Log("aşağı");
-              for (var i = 0; i < GridSize; i++)
-                  for (var j = GridSize-1; j>=0; j--)
-                  {
-                      if(Tiles[i,j] == null) continue;
-                      for (var k = GridSize-1; k >j; k--)
-                      {
-                          if(Tiles[i,k] != null) continue;
-                                  Tiles[i, k] = Tiles[i, j];
-                          Tiles[i, j] = null;
-                          break;
-                      }
-                  }
-              
-          }
+        {
+            for (var i = 0; i < GridSize; i++)
+                for (var j = GridSize-1; j>=0; j--)
+                {
+                    if(Tiles[i,j] == null) continue;
+                    for (var k = GridSize-1; k >j; k--)
+                    {
+                        if(Tiles[i,k] != null) continue;
+                        
+                        _tilesUpdt = true;
+                        Tiles[i, k] = Tiles[i, j];
+                        Tiles[i, j] = null;
+                        break;
+                    }
+                }
+            
+        }
         private void MoveUp()
-          {
-              Debug.Log("yukarı");
-              for (var i = 0; i < GridSize; i++)
-                  for (var j =0; j<GridSize; j++)
-                  {
-                      if(Tiles[i,j] == null) continue;
-                      for (var k = 0; k < j; k++)
-                      {
-                          if(Tiles[i,k] != null) continue;
-                                  Tiles[i, k] = Tiles[i, j];
-                          Tiles[i, j] = null;
-                          break;    
-                      }
-                  }
-          }
+        {
+            for (var i = 0; i < GridSize; i++)
+                for (var j =0; j<GridSize; j++)
+                {
+                    if(Tiles[i,j] == null) continue;
+                    for (var k = 0; k < j; k++)
+                    {
+                        if(Tiles[i,k] != null) continue;
+                        
+                        _tilesUpdt = true;
+                        Tiles[i, k] = Tiles[i, j];
+                        Tiles[i, j] = null;
+                        break;    
+                    }
+                }
+        }
 
         #endregion
     }

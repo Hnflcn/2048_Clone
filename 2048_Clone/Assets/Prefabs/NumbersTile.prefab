@@ -91,6 +91,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 7605494427998845182}
+  tileData: {fileID: 11400000, guid: b3dc69acf0988a94fa50239d821c9b24, type: 2}
 --- !u!1 &7605494427998845168
 GameObject:
   m_ObjectHideFlags: 0
