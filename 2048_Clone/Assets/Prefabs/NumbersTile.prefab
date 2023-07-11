@@ -90,8 +90,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 523b1a53a5ad7d343bea0a5177e44554, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  val: 2
   text: {fileID: 7605494427998845182}
   tileData: {fileID: 11400000, guid: b3dc69acf0988a94fa50239d821c9b24, type: 2}
+  poolParent: {fileID: 0}
 --- !u!1 &7605494427998845168
 GameObject:
   m_ObjectHideFlags: 0

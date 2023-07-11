@@ -83,7 +83,6 @@ namespace Managers
             _tileScript = tile.GetComponent<TileObj>();
             _tileScript.SetValue(GetRandomValue());
             
-
             Tiles[slot.x, slot.y] = _tileScript;
 
             return true;
@@ -106,13 +105,51 @@ namespace Managers
             for (var i = 0; i < GridSize; i++)
                 for (var j = 0; j < GridSize; j++)
                     if (Tiles[i, j] != null)
-                        Tiles[i, j].SetPosition(TilePos[i, j].position, firstIns);
+                    {
+                        Tiles[i, j].firstIns = firstIns;
+                        Tiles[i, j].SetPosition(TilePos[i, j].position);
+                    }
         }
 
         private IEnumerator WaitForTileMove()
         {
             yield return new WaitForSeconds(tileData.movingTime);
+            if (!CanSpawn())
+            {
+                Debug.LogError("not spown");
+            }
+            UpdateTilePosition(true);
             _isMoving = false;
+        }
+
+        private bool TileExistsBetw(int x, int y, int x2 , int y2)
+        {
+            if (x==x2)
+                return TileExistsBetwVertical(x, y, y2);
+            else if (y == y2)
+                return TileExistsBetwHorizontal(x, x2, y);
+
+            return true;
+        }
+
+        private bool TileExistsBetwVertical(int x, int x2, int y)
+        {
+            var minX = Mathf.Min(x, x2);
+            var maxX = Mathf.Max(x, x2);
+            for (var xInd = minX + 1; xInd < maxX; xInd++)
+                if (Tiles[xInd, y] != null)
+                    return true;
+            return false;
+        }
+
+        private bool TileExistsBetwHorizontal(int x, int y, int y2)
+        {
+            var minY = Mathf.Min(y, y2);
+            var maxY = Mathf.Max(y, y2);
+            for (var yInd = minY + 1; yInd < maxY; yInd++)
+                if (Tiles[x,yInd] != null)
+                    return true;
+            return false;
         }
 
         private bool _tilesUpdt;
@@ -190,7 +227,18 @@ namespace Managers
                       
                       for (var k = GridSize - 1; k > i; k--)
                       {
-                          if (Tiles[k,j] != null) continue;
+                          if (Tiles[k, j] != null)
+                          {
+                              if(TileExistsBetw(i,j,k,j))
+                                  continue;
+                              if (Tiles[k, j].Merge(Tiles[i, j]))
+                              {
+                                  Tiles[i, j] = null;
+                                  _tilesUpdt = true;
+                                  break;
+                              }
+                              continue;
+                          }
 
                           _tilesUpdt = true;
                           Tiles[k, j] = Tiles[i, j];
@@ -205,9 +253,20 @@ namespace Managers
                 for (var i=0; i<GridSize; i++)
                 {
                     if (Tiles[i,j] == null) continue;
-                            for (var k = 0; k < i; k++)
+                    for (var k = 0; k < i; k++)
                     {
-                        if (Tiles[k,j] != null) continue;
+                        if (Tiles[k, j] != null)
+                        {
+                            if(TileExistsBetw(i,j,k,j))
+                                continue;
+                            if (Tiles[k, j].Merge(Tiles[i, j]))
+                            {
+                                Tiles[i, j] = null;
+                                _tilesUpdt = true;
+                                break;
+                            }
+                            continue;
+                        }
                         
                         _tilesUpdt = true;
                         Tiles[k, j] = Tiles[i, j];
@@ -224,7 +283,19 @@ namespace Managers
                     if(Tiles[i,j] == null) continue;
                     for (var k = GridSize-1; k >j; k--)
                     {
-                        if(Tiles[i,k] != null) continue;
+                        if (Tiles[i, k] != null)
+                        {
+                            if(TileExistsBetw(i,j,i,k))
+                                continue;
+                            
+                            if (Tiles[i, k].Merge(Tiles[i, j]))
+                            {
+                                Tiles[i, j] = null;
+                                _tilesUpdt = true;
+                                break;
+                            }
+                            continue;
+                        }
                         
                         _tilesUpdt = true;
                         Tiles[i, k] = Tiles[i, j];
@@ -242,7 +313,18 @@ namespace Managers
                     if(Tiles[i,j] == null) continue;
                     for (var k = 0; k < j; k++)
                     {
-                        if(Tiles[i,k] != null) continue;
+                        if (Tiles[i, k] != null)
+                        {
+                            if(TileExistsBetw(i,j,i,k))
+                                continue;
+                            if (Tiles[i, k].Merge(Tiles[i, j]))
+                            {
+                                Tiles[i, j] = null;
+                                _tilesUpdt = true;
+                                break;
+                            }
+                            continue;
+                        }
                         
                         _tilesUpdt = true;
                         Tiles[i, k] = Tiles[i, j];
