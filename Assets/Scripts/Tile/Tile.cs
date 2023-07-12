@@ -26,7 +26,7 @@ namespace Tile
         private Tile _mergeTile;
         
         private Animator _animator;
-        private static readonly int Merge1 = Animator.StringToHash("Merge");
+        private static readonly int Merge1 = Animator.StringToHash(ConstantVariables.Merge);
 
         public void SetValue(int value)
         {

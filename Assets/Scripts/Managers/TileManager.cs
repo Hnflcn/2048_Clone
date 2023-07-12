@@ -211,21 +211,17 @@ private void MoveProcess(int x, int y)
     }
 
     var direction = GetDirection(x, y);
-    if (CanMoveInDirection(direction))
-    {
-        _tilesUpdated = false;
-        var previousMoveTileValues = GetCurrentTileValues();
+    if (!CanMoveInDirection(direction)) return;
+    _tilesUpdated = false;
+    var previousMoveTileValues = GetCurrentTileValues();
 
-        MoveTilesInDirection(direction);
+    MoveTilesInDirection(direction);
 
-        if (_tilesUpdated)
-        {
-            _gameStates.Push(new GameState { TileValues = previousMoveTileValues, Score = _score, MoveCount = _moveCount });
-            _moveCount++;
-            moveCountUpdated.Invoke(_moveCount);
-            UpdateTilePositions(false);
-        }
-    }
+    if (!_tilesUpdated) return;
+    _gameStates.Push(new GameState { TileValues = previousMoveTileValues, Score = _score, MoveCount = _moveCount });
+    _moveCount++;
+    moveCountUpdated.Invoke(_moveCount);
+    UpdateTilePositions(false);
 }
 
 private Direction GetDirection(int x, int y)
