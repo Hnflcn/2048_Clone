@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6cbf53b3-6c85-4532-ac65-03198399e5a6" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Enums.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Enums/Direction.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Enums/Direction.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.2048_Clone/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.2048_Clone/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/InputProcess/MultipleInputManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/InputProcess/MultipleInputManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/InputProcess/SwipeInputManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/InputProcess/SwipeInputManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Managers/TileManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Managers/TileManager.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,7 +77,7 @@
       <option name="presentableId" value="Default" />
       <updated>1689159688046</updated>
       <workItem from="1689159706920" duration="72000" />
-      <workItem from="1689160349534" duration="1203000" />
+      <workItem from="1689160349534" duration="2846000" />
     </task>
     <servers />
   </component>

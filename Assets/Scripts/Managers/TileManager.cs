@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Data;
+using Enums;
 using InputProcess;
 using UI;
 using UnityEngine;
@@ -82,15 +83,13 @@ namespace Managers
         private void GetTilePositions()
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
-            var x = 0;
-            var y = 0;
+            var index = 0;
             foreach (Transform trans in transform)
             {
+                var x = index % GridSize;
+                var y = index / GridSize;
                 _tilePositions[x, y] = trans;
-                x++;
-                if (x < GridSize) continue;
-                x = 0;
-                y++;
+                index++;
             }
         }
 
@@ -120,8 +119,7 @@ namespace Managers
 
         private int GetRandomValue()
         {
-            var random = Random.Range(0f, 1f);
-            return random <= .8f ? 2 : 4;
+            return Random.value <= 0.8f ? 2 : 4;
         }
 
         private void UpdateTilePositions(bool firstIns)
@@ -163,43 +161,130 @@ namespace Managers
         }
 
         private bool _tilesUpdated;
-        private void MoveProcess(int x, int y)
+    //  private void MoveProcess(int x, int y)
+    //  {
+    //      if (x == 0 && y == 0)
+    //          return;
+
+    //      if (Mathf.Abs(x) == 1 && Mathf.Abs(y) == 1)
+    //      {
+    //          Debug.LogWarning($"Invalid move {x}, {y}");
+    //          return;
+    //      }
+
+    //      _tilesUpdated = false;
+    //      var previousMoveTileValues = GetCurrentTileValues();
+
+    //      switch (x)
+    //      {
+    //          case 0 when y > 0:
+    //              MoveUp();
+    //              break;
+    //          case 0:
+    //              MoveDown();
+    //              break;
+    //          case < 0:
+    //              MoveLeft();
+    //              break;
+    //          default:
+    //              MoveRight();
+    //              break;
+    //      }
+
+    //      if (!_tilesUpdated) return;
+    //      _gameStates.Push(new GameState { TileValues = previousMoveTileValues, Score = _score, MoveCount = _moveCount });
+    //      _moveCount++;
+    //      moveCountUpdated.Invoke(_moveCount);
+    //      UpdateTilePositions(false);
+    //  }
+private void MoveProcess(int x, int y)
+{
+    if (x == 0 && y == 0)
+    {
+        return;
+    }
+
+    if (Mathf.Abs(x) == 1 && Mathf.Abs(y) == 1)
+    {
+        Debug.LogWarning($"Invalid move {x}, {y}");
+        return;
+    }
+
+    var direction = GetDirection(x, y);
+    if (CanMoveInDirection(direction))
+    {
+        _tilesUpdated = false;
+        var previousMoveTileValues = GetCurrentTileValues();
+
+        MoveTilesInDirection(direction);
+
+        if (_tilesUpdated)
         {
-            if (x == 0 && y == 0)
-                return;
-
-            if (Mathf.Abs(x) == 1 && Mathf.Abs(y) == 1)
-            {
-                Debug.LogWarning($"Invalid move {x}, {y}");
-                return;
-            }
-
-            _tilesUpdated = false;
-            var previousMoveTileValues = GetCurrentTileValues();
-
-            switch (x)
-            {
-                case 0 when y > 0:
-                    MoveUp();
-                    break;
-                case 0:
-                    MoveDown();
-                    break;
-                case < 0:
-                    MoveLeft();
-                    break;
-                default:
-                    MoveRight();
-                    break;
-            }
-
-            if (!_tilesUpdated) return;
             _gameStates.Push(new GameState { TileValues = previousMoveTileValues, Score = _score, MoveCount = _moveCount });
             _moveCount++;
             moveCountUpdated.Invoke(_moveCount);
             UpdateTilePositions(false);
         }
+    }
+}
 
+private Direction GetDirection(int x, int y)
+{
+    if (x == 0)
+    {
+        return y > 0 ? Direction.Up : Direction.Down;
+    }
+    else
+    {
+        return x > 0 ? Direction.Right : Direction.Left;
+    }
+}
+
+private bool CanMoveInDirection(Direction direction)
+{
+    switch (direction)
+    {
+        case Direction.Up:
+            return CanMoveUp();
+        case Direction.Down:
+            return CanMoveDown();
+        case Direction.Left:
+            return CanMoveLeft();
+        case Direction.Right:
+            return CanMoveRight();
+        default:
+            return false;
+    }
+}
+
+private void MoveTilesInDirection(Direction direction)
+{
+    for (var x = 0; x < GridSize; x++)
+    {
+        for (var y = 0; y < GridSize; y++)
+        {
+            var cell = _tiles[x, y];
+            if (cell != null)
+            {
+                switch (direction)
+                {
+                    case Direction.Up:
+                        MoveUp();
+                        break;
+                    case Direction.Down:
+                        MoveDown();
+                        break;
+                    case Direction.Left:
+                        MoveLeft();
+                        break;
+                    case Direction.Right:
+                        MoveRight();
+                        break;
+                }
+            }
+        }
+    }
+}
         private int[,] GetCurrentTileValues()
         {
             var result = new int[GridSize, GridSize];
@@ -213,10 +298,7 @@ namespace Managers
 
         public void LoadLastGameState()
         {
-            if (_isMoving)
-                return;
-
-            if (!_gameStates.Any())
+            if (_isMoving || !_gameStates.Any())
                 return;
 
             var prevGameState = _gameStates.Pop();
@@ -228,24 +310,32 @@ namespace Managers
 
             _moveCount = prevGameState.MoveCount;
             moveCountUpdated.Invoke(_moveCount);
-
-            foreach (var t in _tiles)
-                if (t != null)
-                    Destroy(t.gameObject);
+            
+            ClearTiles();
 
             for (var x = 0; x < GridSize; x++)
                 for (var y = 0; y < GridSize; y++)
                 {
-                    _tiles[x, y] = null;
-                    if (prevGameState.TileValues[x, y] == 0)
-                        continue;
-
+                    if (prevGameState.TileValues[x, y] == 0) continue;
                     var tile = Instantiate(tilePrefab, transform.parent);
                     tile.SetValue(prevGameState.TileValues[x, y]);
                     _tiles[x, y] = tile;
                 }
 
             UpdateTilePositions(true);
+        }
+        
+        private void ClearTiles()
+        {
+            for (var x = 0; x < GridSize; x++)
+            {
+                for (var y = 0; y < GridSize; y++)
+                {
+                    if (_tiles[x, y] == null) continue;
+                    Destroy(_tiles[x, y].gameObject);
+                    _tiles[x, y] = null;
+                }
+            }
         }
 
         private bool TileExistsBetween(int x, int y, int x2, int y2)
