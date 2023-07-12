@@ -1,18 +1,21 @@
 using System.Linq;
-using InputProcess;
 
-public class MultipleInputManager : IInputManager
+namespace InputProcess
 {
-    private IInputManager[] _managers;
+    public class MultipleInputManager : IInputManager
+    {
+        private readonly IInputManager[] _managers;
 
-    public MultipleInputManager(params IInputManager[] managers)
-    {
-        _managers = managers;
-    }
-    public InputResult GetInput()
-    {
-        var inputResults = _managers.Select(manager => manager.GetInput());
-        var result = inputResults.FirstOrDefault(input => input.HasValue);
-        return result ?? new InputResult();
+        public MultipleInputManager(params IInputManager[] managers)
+        {
+            _managers = managers;
+        }
+
+        public InputResult GetInput()
+        {
+            return _managers.Select(manager => manager.GetInput())
+                       .FirstOrDefault(inp => inp.HasValue)
+                   ?? new InputResult();
+        }
     }
 }
