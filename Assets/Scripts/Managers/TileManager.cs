@@ -75,7 +75,6 @@ namespace Managers
 
         public void RestartGame()
         {
-            Debug.Log("restart");
             var activeScene = SceneManager.GetActiveScene();
             SceneManager.LoadScene(activeScene.name);
         }
@@ -214,7 +213,6 @@ namespace Managers
 
         public void LoadLastGameState()
         {
-            Debug.Log("undo");
             if (_isMoving)
                 return;
 
