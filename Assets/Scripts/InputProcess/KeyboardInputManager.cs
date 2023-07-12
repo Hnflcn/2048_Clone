@@ -4,8 +4,7 @@ namespace InputProcess
 {
     public class KeyboardInputManager : IInputManager
     {
-        private int _lastXInp;
-        private int _lastYInp;
+        private readonly InputResult _lastInputResult=  new InputResult();
 
         public InputResult GetInput()
         {
@@ -14,14 +13,14 @@ namespace InputProcess
             var xInp = Mathf.RoundToInt(Input.GetAxisRaw("Horizontal"));
             var yInp = Mathf.RoundToInt(Input.GetAxisRaw("Vertical"));
 
-            if (_lastXInp == 0 && _lastYInp == 0)
+            if (!_lastInputResult.HasValue)
             {
                 result.XInp = xInp;
                 result.YInp = yInp;
             }
 
-            _lastXInp = xInp;
-            _lastYInp = yInp;
+            _lastInputResult.XInp = xInp;
+            _lastInputResult.YInp = yInp;
 
             return result;
         }

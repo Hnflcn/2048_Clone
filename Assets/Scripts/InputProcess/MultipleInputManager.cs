@@ -12,7 +12,7 @@ public class MultipleInputManager : IInputManager
     public InputResult GetInput()
     {
         var inputResults = _managers.Select(manager => manager.GetInput());
-        InputResult result = inputResults.FirstOrDefault(input => input.HasValue);
+        var result = inputResults.FirstOrDefault(input => input.HasValue);
         return result ?? new InputResult();
     }
 }
